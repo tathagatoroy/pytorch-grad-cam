@@ -34,17 +34,54 @@ def generate_eigenmaps(combined,data,output_directory = "/scratch/tathagato/DREY
         new_video_index = "0" + str(video_index)
     #print(new_video_index)
     mask_path , box_path, final_path = generate_paths(output_directory,new_video_index, image_index)
-
+    
     img = load_image(img_path)
-    img_float_np = np.float32(img) / 255
-    transform = torchvision.transforms.Compose([torchvision.transforms.ToTensor(),])
-    input_tensor = transform(img_float_np)
+
+    image_float_np = np.float32(image) / 255
+    # define the torchvision image transforms
+    transform = torchvision.transforms.Compose([
+        torchvision.transforms.ToTensor(),
+    ])
+
+    input_tensor = transform(img)
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    #device = torch.device("cpu")
+    input_tensor = input_tensor.to(device)
+    # Add a batch dimension:
+    input_tensor = input_tensor.unsqueeze(0)
+
+    #model = torchvision.models.detection.fasterrcnn_resnet50_fpn(pretrained=True)
+    #model.eval().to(device)
+
+    # Run the model and display the detections
+    #boxes, classes, labels, indices = predict(input_tensor, model, device, 0.7)
+    #img = draw_boxes(boxes, labels, classes, img)
+
+    # Show the image:
+    #target_layers = [model.backbone]
+    #targets = [FasterRCNNBoxScoreTarget(labels=labels, bounding_boxes=boxes)]
+    #cam = EigenCAM(model,
+    #            target_layers, 
+    #            use_cuda=torch.cuda.is_available(),
+    #            reshape_transform=fasterrcnn_reshape_transform)
+
+    #grayscale_cam = cam(input_tensor, targets=targets)
+    # Take the first image in the batch:
+    #grayscale_cam = grayscale_cam[0, :]
+    #cam_image = show_cam_on_image(image_float_np, grayscale_cam, use_rgb=True)
+    # And lets draw the boxes again:
+    #image_with_bounding_boxes = draw_boxes(boxes, labels, classes, cam_image)
+
+    #img = load_image(img_path)
+    #img_float_np = np.float32(img) / 255
+    #transform = torchvision.transforms.Compose([torchvision.transforms.ToTensor(),])
+    #input_tensor = transform(img_float_np)
     #device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     #print(device)
-    input_tensor = input_tensor.to(device)
+    #input_tensor = input_tensor.to(device)
     #print(input_tensor.device, device)
     #add batch dimension
-    input_tensor = input_tensor.unsqueeze(0)
+    #input_tensor = input_tensor.unsqueeze(0)
     #print(input_tensor.device,input_tensor.dtype)
     #model.eval().to(device)
     boxes, classes, labels, indices = predict(input_tensor, model, device , 0.7)
@@ -82,11 +119,12 @@ def generate_eigenmaps(combined,data,output_directory = "/scratch/tathagato/DREY
     grayscale_cam = cam(input_tensor, targets)
     grayscale_cam = grayscale_cam[0,:]
     print(grayscale_cam.max(), grayscale_cam.min())
-    grayscale_cam = 1 - grayscale_cam
+    #grayscale_cam = 1 - grayscale_cam
     final_image = show_cam_on_image(img_float_np, grayscale_cam, use_rgb = True)
     save_RGB_image(box_image, box_path)
     save_RGB_image(final_image, final_path)
-    cv2.imwrite(mask_path, grayscale_cam)
+    #cv2.imwrite(mask_path, grayscale_cam)
+    np.save(mask_path,grayscale_cam,allow_pickle = True)
 
 
 
@@ -131,7 +169,7 @@ def process_videos(video_index, dataset_directory):
     json.dump(data, f, indent = 4)
 
 
-GAP = 5
+GAP = 10
 time1 = time.time()
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(device)
@@ -144,7 +182,7 @@ dataset_directory = "/scratch/tathagato/DREYEVE_DATA_OUTPUT"
     #target_layers = [model.backbone]
 
 
-for i in range(5,10):
+for i in range(1,2):
     process_videos(i,dataset_directory)
 
 

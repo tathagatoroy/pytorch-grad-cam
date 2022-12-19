@@ -18,8 +18,9 @@ from utils import *
 from multiprocessing import Pool
 import json
 import pickle
+import argparse 
 os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID" 
-os.environ["CUDA_VISIBLE_DEVICES"]= "2"
+#os.environ["CUDA_VISIBLE_DEVICES"]= "2"
 
 FRAMES = 7501
 def generate_eigenmaps(combined,data,output_directory = "/scratch/tathagato/DREYEVE_DATA_OUTPUT"):
@@ -169,6 +170,18 @@ def process_videos(video_index, dataset_directory):
     json.dump(data, f, indent = 4)
 
 
+parser = argparse.ArgumentParser(description = "EigenCam generation Script")
+
+parser.add_argument('--start_video', type = int, default = 1,help = "starting video index")
+parser.add_argument('--end_video', type = int, default = 1, help = "ending vide index")
+parser.add_argument('--log', type = str, default = "./completed.txt", help = "path to the file which notes the completed files")
+parser.add_argument('--GPU', type = str, default = '0', help = "GPU ID")
+args = parser.parse_args()
+os.environ["CUDA_VISIBLE_DEVICES"]= args.GPU
+
+
+
+
 GAP = 10
 time1 = time.time()
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -182,8 +195,11 @@ dataset_directory = "/scratch/tathagato/DREYEVE_DATA_OUTPUT"
     #target_layers = [model.backbone]
 
 
-for i in range(1,2):
+for i in range(args.start_video,args.end_video + 1):
+    f = open(args.log,"w")
     process_videos(i,dataset_directory)
+    f.write(str(i))
+    f.close()
 
 
 

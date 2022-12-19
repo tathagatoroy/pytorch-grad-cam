@@ -23,7 +23,7 @@ os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
 #os.environ["CUDA_VISIBLE_DEVICES"]= "2"
 
 FRAMES = 7501
-def generate_eigenmaps(combined,data,output_directory = "/scratch/tathagato/DREYEVE_DATA_OUTPUT"):
+def generate_eigenmaps(combined,data,output_directory = "./../DREYEVE_DATA_OUTPUTS"):
     #make video indiex string
     image_dict = {}
     img_path , video_index , image_index = combined
@@ -38,15 +38,15 @@ def generate_eigenmaps(combined,data,output_directory = "/scratch/tathagato/DREY
     
     img = load_image(img_path)
 
-    image_float_np = np.float32(image) / 255
+    image_float_np = np.float32(img) / 255
     # define the torchvision image transforms
     transform = torchvision.transforms.Compose([
         torchvision.transforms.ToTensor(),
     ])
 
     input_tensor = transform(img)
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    #device = torch.device("cpu")
+    #device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    device = torch.device("cpu")
     input_tensor = input_tensor.to(device)
     # Add a batch dimension:
     input_tensor = input_tensor.unsqueeze(0)
@@ -74,9 +74,9 @@ def generate_eigenmaps(combined,data,output_directory = "/scratch/tathagato/DREY
     #image_with_bounding_boxes = draw_boxes(boxes, labels, classes, cam_image)
 
     #img = load_image(img_path)
-    #img_float_np = np.float32(img) / 255
+    #t_np = np.float32(img) / 255
     #transform = torchvision.transforms.Compose([torchvision.transforms.ToTensor(),])
-    #input_tensor = transform(img_float_np)
+    #input_tensor = transform(at_np)
     #device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     #print(device)
     #input_tensor = input_tensor.to(device)
@@ -121,7 +121,7 @@ def generate_eigenmaps(combined,data,output_directory = "/scratch/tathagato/DREY
     grayscale_cam = grayscale_cam[0,:]
     print(grayscale_cam.max(), grayscale_cam.min())
     #grayscale_cam = 1 - grayscale_cam
-    final_image = show_cam_on_image(img_float_np, grayscale_cam, use_rgb = True)
+    final_image = show_cam_on_image(image_float_np, grayscale_cam, use_rgb = True)
     save_RGB_image(box_image, box_path)
     save_RGB_image(final_image, final_path)
     #cv2.imwrite(mask_path, grayscale_cam)
@@ -184,14 +184,15 @@ os.environ["CUDA_VISIBLE_DEVICES"]= args.GPU
 
 GAP = 10
 time1 = time.time()
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+#device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+device = torch.device('cpu')
 print(device)
 model = torchvision.models.detection.fasterrcnn_resnet50_fpn(pretrained=True)
 target_layers = [model.backbone]
-cam = EigenCAM(model,target_layers, use_cuda = torch.cuda.is_available(),reshape_transform = fasterrcnn_reshape_transform)
+cam = EigenCAM(model,target_layers, use_cuda = False ,reshape_transform = fasterrcnn_reshape_transform)
 
 model.eval().to(device)
-dataset_directory = "/scratch/tathagato/DREYEVE_DATA_OUTPUT"
+dataset_directory = "./../DREYEVE_DATA_OUTPUTS"
     #target_layers = [model.backbone]
 
 

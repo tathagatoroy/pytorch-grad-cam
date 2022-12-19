@@ -50,7 +50,7 @@ def generate_paths(output_directory,video_index,image_index):
     image_directory = os.path.join(video_directory,str(image_index))
     if not os.path.isdir(image_directory):
         os.makedirs(image_directory)
-    gray_map_path = os.path.join(image_directory,"mask.jpg")
+    gray_map_path = os.path.join(image_directory,"mask.npy")
     bounding_box_path = os.path.join(image_directory,"box.jpg")
     visual_path = os.path.join(image_directory, "final.jpg")
 

@@ -3,7 +3,11 @@ from __future__ import absolute_import, print_function, division, unicode_litera
 import numpy as np
 import scipy.spatial.distance as distance
 
-
+def cosine_similarity(gt, mask):
+    mask_flattened = mask.flatten()
+    gt_flattened = gt.flatten()
+    cosine = 1 - distance.cosine(mask_flattened,gt_flattened)
+    return cosine
 
 def normalize_saliency_map(saliency_map, cdf, cdf_bins):
     """ Normalize saliency to make saliency values distributed according to a given CDF

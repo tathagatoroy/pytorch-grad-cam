@@ -8,6 +8,7 @@ from config import *
 
 COLORS = np.random.uniform(0,255,size = (len(coco_names), 3))
 def predict(input_tensor, model, device, detection_threshold):
+    print(input_tensor.dtype)
     outputs = model(input_tensor)
     pred_classes = [coco_names[i] for i in outputs[0]['labels'].cpu().numpy()]
     pred_labels = outputs[0]['labels'].cpu().numpy()

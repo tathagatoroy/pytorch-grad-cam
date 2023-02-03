@@ -34,6 +34,7 @@ BOTTOM = 330
 RIGHT = 560
 LEFT = 380
 GAP = 10
+dataset = LOCAL_DATASET
 
 """ DATASET STRUCTURE 
     video number ->
@@ -159,6 +160,7 @@ def generate_eigenmap(img):
     input_tensor = input_tensor.to(device)
     input_tensor = input_tensor.unsqueeze(0)
     boxes, classes, labels, indices = predict(input_tensor, model, device , 0.7)
+    #print(input_tensor.device, input_tensor.dtype)
     num_object = len(boxes)
     info['size'] = num_object
     objects = {}
@@ -168,6 +170,7 @@ def generate_eigenmap(img):
         label = labels[i]
         this_object = {}
         list_box = list(box)
+        indice = indices[i]
         new_box = [int(i) for i in list_box]
         this_object['box'] = new_box 
         this_object['class'] = cls
@@ -177,6 +180,7 @@ def generate_eigenmap(img):
     info['objects'] = objects
     box_image = draw_boxes(boxes,labels,classes,img)
     targets = [FasterRCNNBoxScoreTarget(labels = labels,bounding_boxes = boxes)]
+    print(input_tensor.dtype)
     grayscale_cam = cam(input_tensor, targets)
     grayscale_cam = grayscale_cam[0,:]
     final_image = show_cam_on_image(image_float_np, grayscale_cam, use_rgb = True)
@@ -252,7 +256,9 @@ device = torch.device('cpu')
 #print(device)
 model = torchvision.models.detection.fasterrcnn_resnet50_fpn(pretrained=True)
 target_layers = [model.backbone]
-cam = EigenCAM(model,target_layers, use_cuda = torch.cuda.is_available() ,reshape_transform = fasterrcnn_reshape_transform)
+#cam = EigenCAM(model,target_layers, use_cuda = torch.cuda.is_available() ,reshape_transform = fasterrcnn_reshape_transform)
+cam = EigenCAM(model,target_layers, use_cuda = False ,reshape_transform = fasterrcnn_reshape_transform)
+
 model.eval().to(device)
 video_list = [1,2]
 process_videos(video_list)

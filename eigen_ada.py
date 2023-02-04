@@ -22,6 +22,8 @@ import argparse
 os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID" 
 #os.environ["CUDA_VISIBLE_DEVICES"]= "2"
 
+
+
 FRAMES = 7501
 def generate_eigenmaps(combined,data,output_directory = "/scratch/tathagato/DREYEVE_DATA_OUTPUT"):
     #make video indiex string

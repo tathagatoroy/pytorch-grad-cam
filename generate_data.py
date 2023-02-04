@@ -34,7 +34,7 @@ BOTTOM = 330
 RIGHT = 560
 LEFT = 380
 GAP = 10
-dataset = LOCAL_DATASET
+dataset = ADA_DATASET
 
 """ DATASET STRUCTURE 
     video number ->
@@ -155,8 +155,8 @@ def generate_eigenmap(img):
     ])
     info = {}
     input_tensor = transform(img)
-    #device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    device = torch.device("cpu")
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    #device = torch.device("cpu")
     input_tensor = input_tensor.to(device)
     input_tensor = input_tensor.unsqueeze(0)
     boxes, classes, labels, indices = predict(input_tensor, model, device , 0.7)
@@ -180,7 +180,7 @@ def generate_eigenmap(img):
     info['objects'] = objects
     box_image = draw_boxes(boxes,labels,classes,img)
     targets = [FasterRCNNBoxScoreTarget(labels = labels,bounding_boxes = boxes)]
-    print(input_tensor.dtype)
+    #print(input_tensor.dtype)
     grayscale_cam = cam(input_tensor, targets)
     grayscale_cam = grayscale_cam[0,:]
     final_image = show_cam_on_image(image_float_np, grayscale_cam, use_rgb = True)
@@ -189,6 +189,7 @@ def generate_eigenmap(img):
     
 
 def process_image(video_id,image_id):
+
     """ given image and video index, both in integer do the necessary """
     garmin,saliency = get_image_pair_from_indexes(video_id, image_id)
     #note both the image is now in RGB 
@@ -237,7 +238,7 @@ def process_image(video_id,image_id):
 
 def process_video(video_id):
     print("Processing Video ",video_id)
-    for i in range(0,7501):
+    for i in range(0,7500):
         if i % GAP == 0:
             process_image(video_id, i)
         if i % 200:
@@ -251,14 +252,15 @@ def process_videos(video_list):
 
 
 
-#device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-device = torch.device('cpu')
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+#device = torch.device('cpu')
 #print(device)
 model = torchvision.models.detection.fasterrcnn_resnet50_fpn(pretrained=True)
 target_layers = [model.backbone]
-#cam = EigenCAM(model,target_layers, use_cuda = torch.cuda.is_available() ,reshape_transform = fasterrcnn_reshape_transform)
-cam = EigenCAM(model,target_layers, use_cuda = False ,reshape_transform = fasterrcnn_reshape_transform)
+cam = EigenCAM(model,target_layers, use_cuda = torch.cuda.is_available() ,reshape_transform = fasterrcnn_reshape_transform)
+#cam = EigenCAM(model,target_layers, use_cuda = False ,reshape_transform = fasterrcnn_reshape_transform)
 
 model.eval().to(device)
-video_list = [1,2]
+#video_list = [1,2]
+video_list = [i for i in range(11,16)]
 process_videos(video_list)
